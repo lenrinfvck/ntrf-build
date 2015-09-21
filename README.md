@@ -7,7 +7,7 @@
 + 自动刷新
 
 >环境配备:  
->nodejs 4.0.0+ `node官网下载`
+>nodejs 4.0.0+ `node官网下载`  
 >gulp全局 `npm install -g gulp`  
 
 ##使用
