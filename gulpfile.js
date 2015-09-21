@@ -3,7 +3,7 @@
 "use strict";
 
 var gulp = require("gulp"),
-	path = require("path"),
+	path = require("path"), //node 模块，非gulp插件
 	fs,
 	msgErrs = {};
 
@@ -55,8 +55,9 @@ function complier(opt) {
 		gulpif = require("gulp-if"),
 		wraper = require("gulp-wrapper"),
 		// livereload = require("gulp-livereload");
-		browserSync = require("browser-sync"),
-		includer = require("gulp-file-include");
+		browserSync = require("browser-sync").create(),
+		includer = require("gulp-file-include"),
+		sourcemaps = require("gulp-sourcemaps");
 
 	var css = opt.css,
 		js = opt.js,
@@ -77,10 +78,12 @@ function complier(opt) {
 					compatibility: "ie6"
 				})))
 				.pipe(sourcemaps.write(".", {
-					sourceRoot: "/" + path.relative(opt.rootPath, opt.styleSrc).replace(/\\/g, "/")
+					sourceRoot: "/" + path.relative(opt.rootPath, opt.css.src).replace(/\\/g, "/") //计算相对路径，win路径转换
 				}))
 				.pipe(gulp.dest(css.dest))
-				.pipe(browserSync.stream()) //browser sync 自动刷新
+				.pipe(browserSync.reload({
+					stream: true
+				})) //browser sync 自动刷新
 				.pipe(notify({
 					message: "CSS complied!"
 				}));
@@ -99,10 +102,11 @@ function complier(opt) {
 				.pipe(jsFilter.restore())
 				.pipe(modFilter)
 				.pipe(rename(function(path) {
-					path.basename = path.basename.replace(/\.\w+$/, "");
+					path.basename = path.basename.replace(/\.\w+$/, ""); //路径只取文件名并去掉文件类型，转换为文件名
 				}))
 				.pipe(wraper({
 					header: function(file) {
+						//seaJs模块补充
 						return "(function(f){typeof define===\"function\"?define(" + moduleName(file, js.src) + ",f):f()})(function(require,exports,module){";
 					},
 					footer: "});"
@@ -168,3 +172,47 @@ function complier(opt) {
 	}, 200);
 
 }
+
+/**
+ * 异常处理
+ * @param  {Error} e 错误对象
+ */
+function errrHandler(e) {
+	var msg = e.toString().replace(/\x1B\[\d+m/g, ""),
+		msgbox = require("native-msg-box");
+	if (!msgErrs[msg]) {
+		msgErrs[msg] = msg;
+		if (e.plugin === "gulp-less") {
+			console.log(JSON.stringify(e, 0, 4).trim() || msg);
+		}
+		msgbox.prompt({
+			msg: msg,
+			title: "gulp throw a error"
+		}, function() {
+			msgErrs[msg] = null;
+		});
+	}
+}
+
+gulp.task("default", function() {
+	var root = findRoot();
+	complier({
+		rootPath: root,
+		css: {
+			src: path.join(root, "css.src/"),
+			dest: path.join(root, "css/"),
+			filter: ["**/*.less", "!**/*.module.less"]
+		},
+		js: {
+			src: path.join(root, "js.src/"),
+			dest: path.join(root, "js/"),
+			filter: ["**/*.js"]
+		},
+		html: {
+			src: path.join(root, "html.src/"),
+			dest: path.join(root, "./"),
+			filter: ["**/*.html", "!**/*.module.html"]
+		},
+		debug: process.argv.indexOf("--debug") > 0 //调试模式
+	});
+});
