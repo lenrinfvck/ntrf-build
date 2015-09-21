@@ -54,6 +54,7 @@ function complier(opt) {
 		filter = require("gulp-filter"),
 		gulpif = require("gulp-if"),
 		wraper = require("gulp-wrapper"),
+		swig = require("gulp-swig"),
 		// livereload = require("gulp-livereload");
 		browserSync = require("browser-sync").create(),
 		includer = require("gulp-file-include"),
@@ -122,7 +123,8 @@ function complier(opt) {
 					errorHandler: errrHandler
 				}))
 				.pipe(gulpif(html.filter && html.filter.length, filter(html.filter)))
-				.pipe(includer())
+				//.pipe(includer())
+				.pipe(swig())
 				.pipe(gulp.dest(html.dest)).pipe(notify({
 					message: "HTML complied！"
 				}));
@@ -130,7 +132,6 @@ function complier(opt) {
 	};
 
 	/*CSS 处理*/
-
 	util.css(gulp.src(css.src + "**/*.less"));
 
 	/*JS 处理*/
@@ -209,7 +210,7 @@ gulp.task("default", function() {
 			filter: ["**/*.js"]
 		},
 		html: {
-			src: path.join(root, "html.src/"),
+			src: path.join(root, "tpl/"),
 			dest: path.join(root, "./"),
 			filter: ["**/*.html", "!**/*.module.html"]
 		},
