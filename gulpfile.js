@@ -162,7 +162,7 @@ function complier(opt) {
 	gulp
 		.watch(html.src + "**/*.html", function(files) {
 			console.log(files.path);
-			util.html(gulp.src(files.path));
+			util.html(gulp.src(html.src + "**/*.html"));
 		});
 
 	setTimeout(function() {
