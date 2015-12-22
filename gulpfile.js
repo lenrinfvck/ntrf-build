@@ -151,6 +151,11 @@ function complier(opt) {
 			console.log(files.path);
 			util.css(gulp.src(files.path));
 		});
+	gulp
+		.watch(css.src + "**/*.module.less", function(files) {
+			console.log(files.path);
+			util.css(gulp.src(css.src + "**/*.less"));
+		});
 
 	//js
 	gulp
