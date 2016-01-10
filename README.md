@@ -17,6 +17,8 @@
 
 3. `gulp --debug`将输出未压缩代码。
 
+4. `gulp --ip IP`可以绑定特定的地址，如`gulp --ip localhost:3000`以自动刷新node项目。 
+
 项目代码文件夹参考:  
     
     codeRoot

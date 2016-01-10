@@ -34,6 +34,15 @@ function findRoot() {
 		return ".";
 	})();
 }
+/**
+ * 设置监听IP
+ * @return {String} 监听的IP地址
+ */
+function readIp() {
+	var ip = process.argv.indexOf("--ip"),
+		i;
+	return ip >= 0 ? process.argv[ip + 1] : false;
+}
 
 
 /**
@@ -62,7 +71,8 @@ function complier(opt) {
 
 	var css = opt.css,
 		js = opt.js,
-		html = opt.html;
+		html = opt.html,
+		ip = readIp();
 
 	var util = {
 		css: function(files) {
@@ -172,12 +182,17 @@ function complier(opt) {
 
 	setTimeout(function() {
 		console.log("-------browser sync---------");
-
-		browserSync.init({
-			server: {
-				baseDir: opt.rootPath
-			}
-		});
+		if(ip) {
+			browserSync.init({
+				proxy: ip
+			});
+		} else {
+			browserSync.init({
+				server: {
+					baseDir: opt.rootPath,
+				},
+			});
+		}
 
 		gulp.watch([html.dest + "**/*.html", js.dest + "**/*.js"], browserSync.reload);
 	}, 200);
