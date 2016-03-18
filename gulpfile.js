@@ -118,7 +118,7 @@ function complier(opt) {
 				.pipe(wraper({
 					header: function(file) {
 						//seaJs模块补充
-						return "(function(f){typeof define===\"function\"?define(" + moduleName(file, js.src) + ",f):f()})(function(require,exports,module){";
+						return "(function(f){typeof define===\"function\"?define(f):f()})(function(require,exports,module){";
 					},
 					footer: "});"
 				}))
